@@ -7,17 +7,39 @@ engine = create_engine(DATABASE_URL)
 with engine.connect() as conn:
 
     conn.execute(text("""
-        CREATE TABLE IF NOT EXISTS weather_data (
+    CREATE TABLE IF NOT EXISTS weather_data(
 
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
 
-            timestamp DATETIME NOT NULL,
+        timestamp DATETIME,
 
-            temperature REAL NOT NULL
+        temperature REAL
 
-        );
+    );
+    """))
+
+    conn.execute(text("""
+    CREATE TABLE IF NOT EXISTS weather_features(
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        timestamp DATETIME,
+
+        temperature REAL,
+
+        rolling_mean REAL,
+
+        rolling_std REAL,
+
+        lag_1 REAL,
+
+        hour INTEGER,
+
+        day_of_week INTEGER
+
+    );
     """))
 
     conn.commit()
 
-print("Database and weather_data table created successfully.")
+print("Database initialized successfully.")

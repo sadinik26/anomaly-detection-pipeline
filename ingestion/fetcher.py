@@ -13,37 +13,42 @@ URL = (
     "&current=temperature_2m"
 )
 
-response = requests.get(URL)
 
-if response.status_code != 200:
-    print("Failed to retrieve weather data.")
-    exit()
+def fetch_weather_data():
 
-data = response.json()
+    response = requests.get(URL)
 
-temperature = data["current"]["temperature_2m"]
+    if response.status_code != 200:
+        print("Weather API Error")
+        return
 
-timestamp = datetime.now()
+    data = response.json()
 
-with engine.connect() as conn:
+    temperature = data["current"]["temperature_2m"]
 
-    conn.execute(
-        text("""
-        INSERT INTO weather_data
-        (timestamp, temperature)
-        VALUES
-        (:timestamp, :temperature)
-        """),
-        {
-            "timestamp": timestamp,
-            "temperature": temperature
-        }
+    timestamp = datetime.now()
+
+    with engine.connect() as conn:
+
+        conn.execute(
+            text("""
+            INSERT INTO weather_data
+            (timestamp, temperature)
+            VALUES
+            (:timestamp, :temperature)
+            """),
+            {
+                "timestamp": timestamp,
+                "temperature": temperature
+            }
+        )
+
+        conn.commit()
+
+    print(
+        f"[{timestamp}] Stored Temperature = {temperature}°C"
     )
 
-    conn.commit()
 
-print("=" * 50)
-print("Weather data stored successfully!")
-print(f"Timestamp   : {timestamp}")
-print(f"Temperature : {temperature}°C")
-print("=" * 50)
+if __name__ == "__main__":
+    fetch_weather_data()
